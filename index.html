@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Мое первое TMA</title>
+    <title>Расширенное TMA</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
@@ -17,7 +17,7 @@
             max-width: 600px;
             margin: 0 auto;
         }
-        button {
+        .button {
             background-color: var(--tg-theme-button-color, #2481cc);
             color: var(--tg-theme-button-text-color, #ffffff);
             border: none;
@@ -25,47 +25,98 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
+            margin: 10px 5px;
+            display: inline-block;
+        }
+        .input {
+            width: 100%;
+            padding: 10px;
             margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .theme-info {
+            background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 id="welcomeText">Привет, пользователь!</h1>
-        <p>Это мое первое Telegram Mini App</p>
-        <button id="showAlert">Показать уведомление</button>
-        <button id="closeApp">Закрыть приложение</button>
-        <div id="userInfo"></div>
+        <h1>Расширенное TMA</h1>
+        
+        <div class="theme-info">
+            <h3>Информация о теме:</h3>
+            <div id="themeInfo"></div>
+        </div>
+        
+        <input type="text" id="messageInput" class="input" placeholder="Введите сообщение">
+        <button class="button" id="showMainButton">Показать главную кнопку</button>
+        <button class="button" id="hideMainButton">Скрыть главную кнопку</button>
+        <button class="button" id="changeBackgroundColor">Сменить фон</button>
+        <button class="button" id="showPopup">Показать popup</button>
+        
+        <div id="output" style="margin-top: 20px;"></div>
     </div>
 
     <script>
-        // Проверяем, что приложение запущено в Telegram
         if (window.Telegram && window.Telegram.WebApp) {
             const webApp = window.Telegram.WebApp;
             
-            // Расширяем приложение на весь экран
             webApp.expand();
+            webApp.ready();
             
-            // Получаем информацию о пользователе
-            const user = webApp.initDataUnsafe.user;
-            
-            if (user) {
-                document.getElementById('welcomeText').textContent = 
-                    `Привет, ${user.first_name}!`;
-                
-                document.getElementById('userInfo').innerHTML = `
-                    <p><strong>ID:</strong> ${user.id}</p>
-                    <p><strong>Username:</strong> ${user.username || 'Не указан'}</p>
+            // Показываем информацию о теме
+            function showThemeInfo() {
+                const themeInfo = `
+                    <p><strong>Фоновый цвет:</strong> ${webApp.colorScheme}</p>
+                    <p><strong>Цвет кнопки:</strong> ${webApp.themeParams.button_color}</p>
+                    <p><strong>Цвет текста кнопки:</strong> ${webApp.themeParams.button_text_color}</p>
                 `;
+                document.getElementById('themeInfo').innerHTML = themeInfo;
             }
             
-            // Обработчики кнопок
-            document.getElementById('showAlert').onclick = function() {
-                webApp.showAlert('Привет из Telegram Mini App!');
+            showThemeInfo();
+            
+            // Главная кнопка
+            const mainButton = webApp.MainButton;
+            
+            document.getElementById('showMainButton').onclick = function() {
+                mainButton
+                    .setText("Нажми меня!")
+                    .show()
+                    .onClick(function() {
+                        webApp.showAlert("Главная кнопка нажата!");
+                    });
             };
             
-            document.getElementById('closeApp').onclick = function() {
-                webApp.close();
+            document.getElementById('hideMainButton').onclick = function() {
+                mainButton.hide();
+            };
+            
+            // Смена фона
+            document.getElementById('changeBackgroundColor').onclick = function() {
+                const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57'];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                document.body.style.backgroundColor = randomColor;
+            };
+            
+            // Popup
+            document.getElementById('showPopup').onclick = function() {
+                webApp.showPopup({
+                    title: "Подтверждение",
+                    message: "Вы уверены?",
+                    buttons: [
+                        {id: "yes", type: "ok", text: "Да"},
+                        {id: "no", type: "cancel", text: "Нет"}
+                    ]
+                }, function(buttonId) {
+                    document.getElementById('output').innerHTML = 
+                        `<p>Выбрана кнопка: ${buttonId}</p>`;
+                });
             };
             
         } else {
