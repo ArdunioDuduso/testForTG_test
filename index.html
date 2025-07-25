@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Мое первое TMA</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        button {
+            background-color: var(--tg-theme-button-color, #2481cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="welcomeText">Привет, пользователь!</h1>
+        <p>Это мое первое Telegram Mini App</p>
+        <button id="showAlert">Показать уведомление</button>
+        <button id="closeApp">Закрыть приложение</button>
+        <div id="userInfo"></div>
+    </div>
+
+    <script>
+        // Проверяем, что приложение запущено в Telegram
+        if (window.Telegram && window.Telegram.WebApp) {
+            const webApp = window.Telegram.WebApp;
+            
+            // Расширяем приложение на весь экран
+            webApp.expand();
+            
+            // Получаем информацию о пользователе
+            const user = webApp.initDataUnsafe.user;
+            
+            if (user) {
+                document.getElementById('welcomeText').textContent = 
+                    `Привет, ${user.first_name}!`;
+                
+                document.getElementById('userInfo').innerHTML = `
+                    <p><strong>ID:</strong> ${user.id}</p>
+                    <p><strong>Username:</strong> ${user.username || 'Не указан'}</p>
+                `;
+            }
+            
+            // Обработчики кнопок
+            document.getElementById('showAlert').onclick = function() {
+                webApp.showAlert('Привет из Telegram Mini App!');
+            };
+            
+            document.getElementById('closeApp').onclick = function() {
+                webApp.close();
+            };
+            
+        } else {
+            document.body.innerHTML = '<h1>Откройте это приложение в Telegram!</h1>';
+        }
+    </script>
+</body>
+</html>
